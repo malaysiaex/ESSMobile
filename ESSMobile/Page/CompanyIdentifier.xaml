@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ESSMobile.Page.CompanyIdentifier"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="true"
+             BackgroundColor="#FFFFA6"
+             BackgroundImageSource="bg_large.jpg">
+
+    <ContentPage.Content>
+        <!--<ScrollView VerticalScrollBarVisibility="Never">-->
+        <AbsoluteLayout>
+
+            <StackLayout x:Name="areaContent" 
+                             AbsoluteLayout.LayoutBounds="0,0,1,1"
+                             AbsoluteLayout.LayoutFlags="All"
+                             >
+                <Label x:Name="lblVersion"
+                           HorizontalTextAlignment="End"
+                           Padding="0,0,20,0"
+                           TextColor="Black"
+                           Text=""></Label>
+
+                <!-- connected company -->
+                <StackLayout Padding="10,10,10,50">
+                    <Label x:Name="lblCompanyName" Text="name" FontSize="Title" FontAttributes="Bold"
+                               TextColor="Black"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
+                </StackLayout>
+
+                <!-- identifier -->
+                <StackLayout Padding="30,0">
+                    <Label Text="Company Identifier" 
+                               TextColor="Black" 
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
+
+                    <Entry x:Name="inpCompanyIdentifierID" Placeholder="Enter Company Identifier" 
+                               TextColor="Black"
+                               BackgroundColor="AliceBlue"
+                               HorizontalTextAlignment="Center"></Entry>
+                </StackLayout>
+
+                <!-- identifier button -->
+                <StackLayout Padding="60,10">
+                    <Button x:Name="btnSet" Text="Set" FontAttributes="Bold" FontSize="Small"
+                                BackgroundColor="LightBlue" TextColor="Black" BorderColor="Blue" BorderWidth="3" 
+                                Padding="50,20" CornerRadius="5" ImageSource="ico_company"
+                                Clicked="btnSet_Clicked"></Button>
+                </StackLayout>
+
+                <!-- reset application button -->
+                <StackLayout Padding="60,60,60,10">
+                    <Button x:Name="btnReset" Text="Reset All" FontAttributes="Bold" FontSize="Small"
+                                BackgroundColor="Red" TextColor="White" BorderColor="DarkRed" BorderWidth="3"
+                                Padding="50,10" CornerRadius="5"
+                                Clicked="btnReset_Clicked"></Button>
+                </StackLayout>
+
+                <!-- message -->
+                <StackLayout Padding="10,10" VerticalOptions="Center">
+                    <Label x:Name="lblErrorMessage" Text="" FontAttributes="Bold" 
+                               TextColor="red" 
+                               HorizontalTextAlignment="Center"></Label>
+                </StackLayout>
+
+            </StackLayout>
+
+            <!-- loading -->
+            <StackLayout x:Name="areaLoading" IsVisible="false"
+                             AbsoluteLayout.LayoutBounds="0,0,1,1"
+                             AbsoluteLayout.LayoutFlags="All"
+                             BackgroundColor="Gray" Opacity="0.7">
+                <ActivityIndicator x:Name="loadingIcon" IsRunning="True"
+                                       HorizontalOptions="CenterAndExpand"
+                                       VerticalOptions="CenterAndExpand"
+                                       Color="Black"/>
+            </StackLayout>
+
+        </AbsoluteLayout>
+        <!--</ScrollView>-->
+    </ContentPage.Content>
+</ContentPage>

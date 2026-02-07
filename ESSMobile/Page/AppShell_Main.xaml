@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:localPage="clr-namespace:ESSMobile.Page"
+       x:Class="ESSMobile.Page.AppShell_Main"
+       Shell.BackgroundColor="Orange" >
+
+    <Shell.FlyoutHeader>
+        <StackLayout Padding="16" BackgroundColor="LightGray">
+            <Label Text="Menu" FontAttributes="Bold" FontSize="Medium" />
+        </StackLayout>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem Title="Home" Icon="ico_home.png">
+        <ShellContent ContentTemplate="{DataTemplate localPage:WebContent}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Setting" Icon="ico_setting.png">
+        <ShellContent ContentTemplate="{DataTemplate localPage:Setting}" />
+    </FlyoutItem>
+
+    <MenuItem Text="Logout" IconImageSource="ico_logout.png" Clicked="btnLogout_Clicked" />
+
+</Shell>

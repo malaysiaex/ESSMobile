@@ -1,0 +1,27 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ESSMobile.Page.WebContent"
+             BackgroundColor="#FFFFA6">
+
+    <Grid>
+
+        <!-- WebView takes full screen -->
+        <WebView x:Name="myWebView1" />
+
+        <!-- Loading overlay on top -->
+        <StackLayout x:Name="areaLoading"
+                     IsVisible="false"
+                     BackgroundColor="Gray"
+                     Opacity="0.7"
+                     HorizontalOptions="FillAndExpand"
+                     VerticalOptions="FillAndExpand">
+            <ActivityIndicator x:Name="loadingIcon"
+                               IsRunning="True"
+                               HorizontalOptions="CenterAndExpand"
+                               VerticalOptions="CenterAndExpand"
+                               Color="Black"/>
+        </StackLayout>
+
+    </Grid>
+
+</ContentPage>

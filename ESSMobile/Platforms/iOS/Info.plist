@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+	</array>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>XSAppIconAssets</key>
+	<string>Assets.xcassets/ExacomIcon.appiconset</string>
+	<key>UILaunchStoryboardName</key>
+	<string>MauiSplash</string>
+	<key>CFBundleDisplayName</key>
+	<string>ESSMobile</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.10.17</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app use GPS to clock attendance.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app use camera to take selfie photo when clock attendance.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app can upload photo from photo library.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app use biometric authentication to login.</string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>MinimumOSVersion</key>
+	<string>11.0</string>
+</dict>
+</plist>

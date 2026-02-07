@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ESSMobile.Page.Login"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="true"
+             BackgroundColor="#FFFFA6"
+             BackgroundImageSource="bg_large.jpg">
+
+    <ContentPage.Content>
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <AbsoluteLayout Padding="0,0,0,0">
+
+                <StackLayout x:Name="areaContent" 
+                             AbsoluteLayout.LayoutBounds="0,0,1,1"
+                             AbsoluteLayout.LayoutFlags="All"
+                             >
+                    <Label x:Name="lblVersion"
+                           HorizontalTextAlignment="End"
+                           Padding="0,0,20,0"
+                           TextColor="Black"
+                           Text=""></Label>
+
+                    <!-- exacom logo -->
+                    <StackLayout Padding="5,0,5,0">
+                        <Image Source="logo_exacom" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="120"></Image>
+                        <Label Text="ESS Employee Self-Service" HorizontalOptions="Center" TextColor="Black" FontSize="Title" FontAttributes="Bold" Padding="0,0,0,15" ></Label>
+                    </StackLayout>
+
+                    <!-- connected company -->
+                    <StackLayout Padding="5,0,5,15">
+                        <Label x:Name="lblCompanyName" Text="" FontSize="18" FontAttributes="Bold"
+                               TextColor="Black"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
+                    </StackLayout>
+
+                    <!-- login username & password -->
+                    <StackLayout Padding="50,0,50,0">
+                        <Label Text="Username" 
+                               TextColor="Black" 
+                               HorizontalTextAlignment="Start"></Label>
+                        <Entry x:Name="inpUsername" Placeholder="Enter Username"
+                               TextColor="Black"
+                               BackgroundColor="AliceBlue"
+                               HorizontalTextAlignment="Center"
+                               TextTransform="Uppercase"
+                               IsTextPredictionEnabled="False"                       
+                               Completed="inpUsername_Completed" ></Entry>
+                        <Label Text="Password" 
+                               TextColor="Black" 
+                               HorizontalTextAlignment="Start"></Label>
+                        <Entry x:Name="inpPassword" Placeholder="Enter Password" 
+                               TextColor="Black"
+                               BackgroundColor="AliceBlue"
+                               HorizontalTextAlignment="Center" 
+                               IsPassword="True"
+                               Completed="inpPassword_Completed"></Entry>
+                    </StackLayout>
+
+                    <!-- logout button -->
+                    <StackLayout>
+                        <Label x:Name="btnLogout" Text="Login with another user" FontAttributes="Bold" FontSize="Small" TextColor="Black" Padding="15,5" HorizontalTextAlignment="Center" TextDecorations="Underline">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="lblLogout_Tapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
+
+                    <!-- login button -->
+                    <StackLayout Margin="60,10">
+                        <Button x:Name="btnLogin" Text="Password Login" FontAttributes="Bold" FontSize="Small"
+                        BackgroundColor="LightBlue" TextColor="Black" BorderColor="Blue" BorderWidth="3" 
+                        Padding="40,15" CornerRadius="5" ImageSource="ico_key"
+                        Clicked="btnLogin_Clicked"
+                        IsEnabled="False"></Button>
+
+                        <Label x:Name="lblErrorMessage" Text="" FontAttributes="Bold" 
+                       TextColor="red" 
+                       HorizontalTextAlignment="Center"></Label>
+
+                    </StackLayout>
+
+                    <!-- separator line -->
+                    <Grid x:Name="lineLoginBio" ColumnDefinitions="*,auto,*" IsVisible="false">
+                        <Grid.Resources>
+                            <Style TargetType="BoxView">
+                                <Setter Property="Color" Value="Gray"/>
+                                <Setter Property="HorizontalOptions" Value="FillAndExpand"/>
+                                <Setter Property="VerticalOptions" Value="Center"/>
+                                <Setter Property="HeightRequest" Value="1"/>
+                            </Style>
+                        </Grid.Resources>
+                        <BoxView Grid.Column="0"/>
+                        <Label Text="OR" Grid.Column="1" TextColor="Black"/>
+                        <BoxView Grid.Column="2"/>
+                    </Grid>
+
+                    <!-- Biometric login button-->
+                    <StackLayout Padding="60,10" >
+                        <Button x:Name="btnLoginBio" Text="Biometric Login" FontAttributes="Bold" FontSize="Small"
+                        BackgroundColor="LightBlue" TextColor="Black" BorderColor="Blue" BorderWidth="3" 
+                        Padding="40,15" CornerRadius="5" ImageSource="ico_fingerprint"
+                        Clicked="btnBioLogin_Clicked"
+                        IsEnabled="False"
+                        IsVisible="False">
+                        </Button>
+                    </StackLayout>
+
+                </StackLayout>
+
+                <!-- loading -->
+                <StackLayout x:Name="areaLoading" IsVisible="false"
+                             AbsoluteLayout.LayoutBounds="0,0,1,1"
+                             AbsoluteLayout.LayoutFlags="All"
+                             BackgroundColor="Gray" Opacity="0.7">
+                    <ActivityIndicator x:Name="loadingIcon" IsRunning="True"
+                                       HorizontalOptions="CenterAndExpand"
+                                       VerticalOptions="CenterAndExpand"
+                                       Color="Black"/>
+                </StackLayout>
+
+            </AbsoluteLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

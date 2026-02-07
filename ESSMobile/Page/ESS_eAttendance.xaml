@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ESSMobile.Page"             
+             x:Class="ESSMobile.Page.ESS_eAttendance"
+             BackgroundColor="#FFFFA6"
+             >
+
+    <ContentPage.Content>
+        <AbsoluteLayout>
+
+            <!-- contents -->
+            <StackLayout x:Name="areaContent" 
+                     AbsoluteLayout.LayoutBounds="0,0,1,1"
+                     AbsoluteLayout.LayoutFlags="All">
+
+                <!-- notification message -->
+                <StackLayout>
+                    <Label x:Name="lblMessage"
+                           Text="Checking GPS Permission"
+                           TextColor="White"
+                           BackgroundColor="Red"
+                           HorizontalTextAlignment="Center"
+                           Padding="0,2"
+                           ></Label>
+                </StackLayout>
+
+                <!-- photo -->
+                <Grid x:Name="areaPhoto" Margin="10" HeightRequest="200" WidthRequest="160" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="True">
+                    <!-- show [photo] if no source -->
+                    <Label Text="[Photo]"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"
+                           BackgroundColor="DimGray"
+                           TextColor="White"
+                           x:Name="lblDefaultPhoto"
+                           />
+
+                    <!-- actual photo -->
+                    <Image x:Name="imgPicture"
+                           Aspect="AspectFit"
+                           >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="imgPictureTap" Tapped="imgPictureTap_Tapped" />
+                        </Image.GestureRecognizers>
+
+                    </Image>
+
+                    <!-- photo details (always hidden) -->
+                    <ScrollView IsVisible="false">
+                        <StackLayout>
+                            <Label x:Name="lblPicBase64"
+                                   Text="n/a"
+                                   ></Label>
+                        </StackLayout>
+                    </ScrollView>
+
+                </Grid>
+
+                <!-- datetime -->
+                <StackLayout Margin="0,10">
+                    <Label x:Name="lblTimeNow" 
+                           HorizontalTextAlignment="Center"
+                           TextColor="Black"
+                           FontSize="Title"
+                           FontAttributes="Bold"
+                           ></Label>
+                </StackLayout>
+                <!-- company dropdown + company information -->
+                <StackLayout Margin="30,0,30,15" Padding="2" BackgroundColor="Black" x:Name="layoutCompanyInformation" >
+                    <Grid BackgroundColor="White" Padding="10,5" x:Name="gridCompanyInformation">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <!-- Company dropdown row -->
+                        <Label Grid.Row="0" Grid.Column="0"
+                            x:Name="lblSelectLocation"
+                            FontAttributes="Bold"
+                            TextColor="Black"
+                            Text="Select Location:" />
+                        <Picker Grid.Row="0" Grid.Column="1"
+                            x:Name="CompanyPicker" />
+
+                        <!-- Company Address row -->
+                        <Label Grid.Row="2" Grid.Column="0"
+                           x:Name="lblCompanyAddress"
+                           FontAttributes="Bold"
+                           IsVisible="False"
+                           TextColor="Black"
+                           Text="Address :" />
+                        <Label Grid.Row="2" Grid.Column="1"
+                            IsVisible="False"
+                           x:Name="lblCompanyAddressValue"
+                           TextColor="Black" />
+
+                        <!-- Company Distance row -->
+                        <Label Grid.Row="1" Grid.Column="0"
+                            x:Name="lblCompanyDistance"
+                            IsVisible="False"
+                            FontAttributes="Bold"
+                            TextColor="Black"
+                            Text="Distance:" />
+                        <Label Grid.Row="1" Grid.Column="1"
+                            IsVisible="False"
+                           x:Name="lblCompanyDistanceValue"
+                           TextColor="Black"
+                           VerticalTextAlignment="Start"
+                           Text="" />
+                    </Grid>
+                </StackLayout>
+                <!-- gps location -->   
+                <StackLayout Margin="30,0,30,0" Padding="2" BackgroundColor="Black" >
+                    <Grid BackgroundColor="White" Padding="10,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0"
+                               VerticalTextAlignment="Start"
+                               FontAttributes="Bold"
+                               TextColor="Black"
+                               Text="Your GPS :"
+                               ></Label>
+                        <Label x:Name="lblGeoLocation"
+                               Grid.Row="0" Grid.Column="1"
+                               VerticalTextAlignment="Start"
+                               TextColor="Black"
+                               Text=""
+                               ></Label>
+                        <Label Grid.Row="1" Grid.Column="0"
+                               VerticalTextAlignment="Start"
+                               FontAttributes="Bold"
+                               TextColor="Black"
+                               Text="Address :"
+                               ></Label>
+                        <Label x:Name="lblAddress"
+                               Grid.Row="1" Grid.Column="1"
+                               VerticalTextAlignment="Start"
+                               TextColor="Black"
+                               Text=""
+                               ></Label>
+                    </Grid>
+                </StackLayout>
+
+                <!-- submit button -->
+                <StackLayout Margin="30">
+
+                    <!-- Layered countdown and button -->
+                    <AbsoluteLayout HeightRequest="50">
+                        <!-- Countdown on bottom -->
+                        <Label x:Name="lblCountDown"
+                               AbsoluteLayout.LayoutBounds="0,0,1,1"
+                               AbsoluteLayout.LayoutFlags="All"
+                               Text="0 minutes 0 seconds"
+                               FontAttributes="Bold"
+                               TextColor="Red"
+                               BackgroundColor="LightGray"
+                               HorizontalTextAlignment="Center"
+                               VerticalTextAlignment="Center" />
+
+                        <!-- Button on top -->
+                        <Button x:Name="btnSubmit"
+                                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                                AbsoluteLayout.LayoutFlags="All"
+                                Text="Clock-In / Clock-Out"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                BackgroundColor="LightGray"
+                                IsVisible="true"
+                                IsEnabled="false"
+                                Clicked="btnSubmit_Clicked" />
+                    </AbsoluteLayout>
+
+                    <!-- Last Clocking Record -->
+                    <Label x:Name="lblLastRecord"
+                           TextColor="Black"
+                           IsVisible="true" />
+                </StackLayout>
+
+            </StackLayout>
+
+            <!-- loading -->
+            <StackLayout x:Name="areaLoading" IsVisible="false"
+                         AbsoluteLayout.LayoutBounds="0,0,1,1"
+                         AbsoluteLayout.LayoutFlags="All"
+                         BackgroundColor="Gray" Opacity="0.7">
+                <ActivityIndicator x:Name="loadingIcon" IsRunning="True"
+                                   HorizontalOptions="CenterAndExpand"
+                                   VerticalOptions="CenterAndExpand"
+                                   Color="Black"/>
+            </StackLayout>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+
+</ContentPage>

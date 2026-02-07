@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="ESSMobile.Page.Tabbed_Login"
+            xmlns:localPage="clr-namespace:ESSMobile.Page"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.ToolbarPlacement="Bottom"
+            android:TabbedPage.IsSwipePagingEnabled="False"
+            SelectedTabColor="Blue"
+            BarBackgroundColor="Orange"
+            NavigationPage.HasNavigationBar="False"
+            NavigationPage.HasBackButton="False"            
+            >
+
+    <localPage:Login Title="Login" IconImageSource="ico_login"/>
+    <localPage:CompanyIdentifier Title="Company Identifier" IconImageSource="ico_company"/>
+
+</TabbedPage>
