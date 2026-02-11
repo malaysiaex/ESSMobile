@@ -252,7 +252,6 @@ public partial class ESS_eAttendance : ContentPage
             if (companyLocations == null)
             {
                 SetRowVisible(false, lblSelectLocation, CompanyPicker);
-                layoutCompanyInformation.IsVisible = false;
             }
             else
             {
@@ -676,14 +675,11 @@ public partial class ESS_eAttendance : ContentPage
 
         // ----- nearWorkplace/withinWorkplaceTimeWindow calculation + notification for not near workplace ---------
 
-        //  database does not exist, consider user to be near workplace
-        if (companyLocations == null)
+        //  database does not exist or list is empty
+        if (companyLocations == null || companyLocations.Count == 0)
         {
             nearWorkplace = true;
-        }
-        // list is empty, consider user to be near workplace 
-        else if (companyLocations.Count == 0){
-            nearWorkplace = true;
+            withinWorkplaceTimeWindow = true;
             layoutCompanyInformation.IsVisible = false;
         }
         // user has been restricted to clock into certain locations

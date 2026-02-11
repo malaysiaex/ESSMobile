@@ -26,10 +26,11 @@ namespace ESSMobile.Shared
         static string JsonUrl = "https://www.exacom.com.my/files/master_url.json";
         public static async Task<string> GetValueByKeyAsync(string key)
         {
-            if (key == "ESSMobile_API2")
-            {
-                return "https://localhost:7220";
-            }
+            // temp hard code for testing
+            //if (key == "ESSMobile_API2")
+            //{
+            //    return "https://localhost:7220";
+            //}
             try
             {
                 HttpClient masterClient = new HttpClient();
