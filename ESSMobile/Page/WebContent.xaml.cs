@@ -38,7 +38,6 @@ public partial class WebContent : ContentPage
         try
         {
             HttpClient masterClient = new HttpClient();
-            masterClient.DefaultRequestHeaders.UserAgent.ParseAdd("ESSMobile/1.0");
 
             var json = await masterClient.GetStringAsync(JsonUrl);
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
@@ -144,7 +143,7 @@ public partial class WebContent : ContentPage
         //string LoginMethod = Preferences.Get("LoginMethod", "Bio");
         string LoginMethod = await SecureStorage.GetAsync("LoginMethod") ?? "";
 
-        BaseUrl = await GetValueByKeyAsync("ESSMobile_WebPage");
+        BaseUrl = ApiInitializer.ESSMobileWeb;
         // TEMP hard code the mobile web page locally later
 
         if (LoginMethod != "Bio")
