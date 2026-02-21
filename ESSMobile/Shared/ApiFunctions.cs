@@ -48,31 +48,6 @@ namespace ESSMobile.Shared
         //static int clientTimeOut = 20;
 
         static string JsonUrl = "https://www.exacom.com.my/files/master_url.json";
-        public static async Task<string> GetValueByKeyAsync(string key)
-        {
-            // temp hard code for testing
-            //if (key == "ESSMobile_API2")
-            //{
-            //    return "https://localhost:7220";
-            //}
-            try
-            {
-                HttpClient masterClient = new HttpClient();
-                var json = await masterClient.GetStringAsync(JsonUrl);
-                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                if (data != null && data.TryGetValue(key, out string value))
-                {
-                    return value;
-                }
-                return null; // Key not found
-            }
-            catch (Exception ex)
-            {
-                // Optional: log or handle errors
-                return null;
-            }
-        }
-
         public static async Task<(string, string)> jsonCheckIndentifier(string sCompanyIdentifier)
         {
             //company identifier cannot blank or empty

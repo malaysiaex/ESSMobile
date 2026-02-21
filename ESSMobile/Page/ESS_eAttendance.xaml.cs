@@ -73,26 +73,6 @@ public partial class ESS_eAttendance : ContentPage
 
     string JsonValue = "";
     static string JsonUrl = "https://www.exacom.com.my/files/master_url.json";
-    public static async Task<string> GetValueByKeyAsync(string key)
-    {
-        try
-        {
-            HttpClient masterClient = new HttpClient();
-            var json = await masterClient.GetStringAsync(JsonUrl);
-            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            if (data != null && data.TryGetValue(key, out string value))
-            {
-                return value;
-            }
-            return null; // Key not found
-        }
-        catch (Exception ex)
-        {
-            // Optional: log or handle errors
-            return null;
-        }
-    }
-
 
     //[Obsolete]
     public ESS_eAttendance()
