@@ -103,7 +103,7 @@ public partial class CompanyIdentifier : ContentPage
     {
         try
         {
-            var results = await _Function.jsonCheckIndentifier(sCompanyIdentifier);
+            var results = await ApiFunctions.jsonCheckIndentifier(sCompanyIdentifier);
             if (results.Item1 == "Success")
             {
                 //btnReset.IsVisible = true;

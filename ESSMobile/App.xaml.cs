@@ -1,15 +1,19 @@
-﻿namespace ESSMobile
+﻿using ESSMobile.Shared;
+
+namespace ESSMobile
 {
     public partial class App : Application
     {
-        public App()
+        private readonly ApiInitializer _apiInitializer;
+
+        public App(ApiInitializer apiInitializer)
         {
             InitializeComponent();
+            _apiInitializer = apiInitializer;
 
-            //MainPage = new AppShell();
-            //MainPage = new NavigationPage(new Page.Tabbed_Login());
-            //Application.Current.MainPage = new Page.Tabbed_Login(); // Navigate back to login
-            MainPage = new Page.Tabbed_Login(); // Navigate back to login
+            MainPage = new Page.Tabbed_Login(); // app shows immediately
         }
+
+        public ApiInitializer ApiInitializer => _apiInitializer; // property for pages
     }
 }

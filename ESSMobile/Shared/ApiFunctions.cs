@@ -14,8 +14,32 @@ using System.Threading.Tasks;
 
 namespace ESSMobile.Shared
 {
-    public static class _Function
+    public static class ApiFunctions
     {
+        private static HttpClient _ESSMobileApi_Client;
+        private static HttpClient _ESSMobileApi2_Client;
+        private static HttpClient _ESSMobileWeb_Client;
+
+
+        public static void Initialize(ApiInitializer initializer, IHttpClientFactory factory)
+        {
+            _ESSMobileApi_Client = factory.CreateClient("ESSMobile");
+            _ESSMobileApi_Client.BaseAddress = new Uri(ApiInitializer.ESSMobileApi);
+            _ESSMobileApi_Client.Timeout = new TimeSpan(0, 0, 20);
+            _ESSMobileApi_Client.DefaultRequestHeaders.UserAgent.ParseAdd("ESSMobile/1.0");
+
+            _ESSMobileApi2_Client = factory.CreateClient("ESSMobile2");
+            _ESSMobileApi2_Client.BaseAddress = new Uri(ApiInitializer.ESSMobileApi2);
+            _ESSMobileApi2_Client.Timeout = new TimeSpan(0, 0, 20);
+            _ESSMobileApi2_Client.DefaultRequestHeaders.UserAgent.ParseAdd("ESSMobile/1.0");
+
+            _ESSMobileWeb_Client = factory.CreateClient("ESSMobileWeb");
+            _ESSMobileWeb_Client.BaseAddress = new Uri(ApiInitializer.ESSMobileWeb);
+            _ESSMobileWeb_Client.Timeout = new TimeSpan(0, 0, 20);
+            _ESSMobileWeb_Client.DefaultRequestHeaders.UserAgent.ParseAdd("ESSMobile/1.0");
+
+
+        }
         static string BaseUrl = "";
         //static string BaseUrl = "http://exacom.koreacentral.cloudapp.azure.com:6100"; //old exacom azure (deleted soon)
         //static string BaseUrl = "http://exacom.com.my:6100"; //exabyte vm (connection dropped, stopped working)
@@ -61,9 +85,7 @@ namespace ESSMobile.Shared
                 return ("Error", "Invalid Company Identifier");
             }
 
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API");
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi_Client;
             try
             {
                 //check company identifier with backend
@@ -141,9 +163,8 @@ namespace ESSMobile.Shared
                 return ("Error", "Invalid Username or Password.");
             }
 
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API");
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi_Client;
+
             try
             {
                 //check username and password with backend
@@ -190,9 +211,8 @@ namespace ESSMobile.Shared
             //{
             //    client = new HttpClient { BaseAddress = new Uri(login_api) };
             //}
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API");
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi_Client;
+
             try
             {
                 //get server date time
@@ -240,9 +260,8 @@ namespace ESSMobile.Shared
             //{
             //    client = new HttpClient { BaseAddress = new Uri(login_api) };
             //}
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API");
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi_Client;
+
             try
             {
                 //get last clocking date time
@@ -280,9 +299,8 @@ namespace ESSMobile.Shared
 
         public static async Task<(string, string)> jsonSubmitClocking(string getIdentifier, string getUsername, string getDateD, string getDateM, string getDateY, string getTimeH, string getTimeM, string getTimeS, string getGeoLa, string getGeoLo, string getGeoAd, string getImg64)
         {
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API");
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi_Client;
+
             try
             {
                 //get last clocking date time
@@ -334,10 +352,8 @@ namespace ESSMobile.Shared
         /// <returns></returns>
         public static async Task<List<CompanyLocation>?> APIGetCompanyLocations(string companyIdentifier, string username)
         {
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API2");
+            var client = _ESSMobileApi2_Client;
 
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
             try
             {
                 // retrieve company locations depending on companyIdentifier
@@ -355,12 +371,11 @@ namespace ESSMobile.Shared
         }
         public static async Task<DateTime> APIGetServerUtcTime()
         {
-            BaseUrl = await GetValueByKeyAsync("ESSMobile_API2");
             // temp hard code to local api
             //BaseUrl = "https://localhost:5002";
 
-            HttpClient client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            client.Timeout = new TimeSpan(0, 0, 20);
+            var client = _ESSMobileApi2_Client;
+
 
             try
             {

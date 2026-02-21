@@ -105,7 +105,7 @@ public partial class ESS_eAttendance : ContentPage
         base.OnAppearing();
         Title = "e-Attendance";
 
-        JsonValue = await GetValueByKeyAsync("ESSMobile_DisableTakePhoto");
+        JsonValue = ApiInitializer.ESSMobile_DisableTakePhoto;
         if (JsonValue.ToString().Trim().ToUpper() == "TRUE")
         {
             areaPhoto.IsVisible = false;
@@ -247,7 +247,7 @@ public partial class ESS_eAttendance : ContentPage
     {
         try
         {
-            companyLocations = await _Function.APIGetCompanyLocations(getIdentifier, getUsername);
+            companyLocations = await ApiFunctions.APIGetCompanyLocations(getIdentifier, getUsername);
             // disable top box if null meaning db does not exist
             if (companyLocations == null)
             {
@@ -346,7 +346,7 @@ public partial class ESS_eAttendance : ContentPage
     {
         try
         {
-            _utcTime = await _Function.APIGetServerUtcTime();
+            _utcTime = await ApiFunctions.APIGetServerUtcTime();
         }
         catch(Exception ex)
         {
@@ -358,7 +358,7 @@ public partial class ESS_eAttendance : ContentPage
     {
         try
         {
-            var results = await _Function.jsonGetServerTime(getIdentifier);
+            var results = await ApiFunctions.jsonGetServerTime(getIdentifier);
             if (results.Item1 == "Success")
             {
                 DateTime rebuildTime = new DateTime(
@@ -395,7 +395,7 @@ public partial class ESS_eAttendance : ContentPage
     {
         try
         {
-            var results = await _Function.jsonGetLastClocking(getIdentifier, getUsername);
+            var results = await ApiFunctions.jsonGetLastClocking(getIdentifier, getUsername);
             if (results.Item1 == "Success")
             {
                 DateTime rebuildTime = new DateTime(
@@ -1115,7 +1115,7 @@ public partial class ESS_eAttendance : ContentPage
 
         try
         {
-            var results = await _Function.jsonSubmitClocking(getIdentifier, getUsername, _gDateNowD, _gDateNowM, _gDateNowY, _gTimeNowH, _gTimeNowM, _gTimeNowS, _gGeoLatitude, _gGeoLongitude, _gGeoAddress, _picBase64);
+            var results = await ApiFunctions.jsonSubmitClocking(getIdentifier, getUsername, _gDateNowD, _gDateNowM, _gDateNowY, _gTimeNowH, _gTimeNowM, _gTimeNowS, _gGeoLatitude, _gGeoLongitude, _gGeoAddress, _picBase64);
             //await DisplayAlert("Debug", $"Results: {results.Item1},{results.Item2}", "OK");
             if (results.Item1 == "Success")
             {

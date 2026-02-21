@@ -37,7 +37,11 @@ public partial class Login : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+        var apiInitializer = (Application.Current as App)?.ApiInitializer;
+        if (apiInitializer != null)
+        {
+            await apiInitializer.InitializationTask;
+        }
         lblVersion.Text = AppInfo.VersionString;
 
         //preload caches
@@ -112,7 +116,7 @@ public partial class Login : ContentPage
         {
             try
             {
-                var results = await _Function.jsonCheckIndentifier(getIdentifier);
+                var results = await ApiFunctions.jsonCheckIndentifier(getIdentifier);
                 if (results.Item1 == "Success")
                 {
                     //((TabbedPage)this.Parent).Children[0].IsEnabled = true;
@@ -226,7 +230,7 @@ public partial class Login : ContentPage
             areaLoading.IsVisible = true;
 
             //check login
-            var results = await _Function.jsonCheckLogin(inpUsername.Text, inpPassword.Text);
+            var results = await ApiFunctions.jsonCheckLogin(inpUsername.Text, inpPassword.Text);
             if (results.Item1 == "Success")
             {
                 await SecureStorage.SetAsync("login_username", inpUsername.Text.ToUpper());
@@ -365,7 +369,7 @@ public partial class Login : ContentPage
         if (result.Status == BiometricResponseStatus.Success)
         {
             //check bio login
-            var results = await _Function.jsonCheckLogin(bioUser, bioPass);
+            var results = await ApiFunctions.jsonCheckLogin(bioUser, bioPass);
             if (results.Item1 == "Success")
             {
                 // Authentication successful

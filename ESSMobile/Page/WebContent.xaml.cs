@@ -1,25 +1,26 @@
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+//using SkiaSharp.Views.Maui.Controls;
+//using SkiaSharp.Views.Maui;
+using Microsoft.Maui.Controls.Compatibility;
+using Microsoft.Maui.Controls.PlatformConfiguration;
+using Microsoft.Maui.Controls.Xaml;
+using Microsoft.Maui.Storage;
+using Newtonsoft.Json;
+using SkiaSharp;
 using System;
-using System.Data;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using System.Data.SqlClient;
-using SkiaSharp;
-using Microsoft.Maui.Controls.Xaml;
 using System.Web;
-//using SkiaSharp.Views.Maui.Controls;
-//using SkiaSharp.Views.Maui;
-using Microsoft.Maui.Controls.Compatibility;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui;
-using Microsoft.Maui.Storage;
-using Newtonsoft.Json;
 
 namespace ESSMobile.Page;
 
@@ -37,6 +38,8 @@ public partial class WebContent : ContentPage
         try
         {
             HttpClient masterClient = new HttpClient();
+            masterClient.DefaultRequestHeaders.UserAgent.ParseAdd("ESSMobile/1.0");
+
             var json = await masterClient.GetStringAsync(JsonUrl);
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             if (data != null && data.TryGetValue(key, out string value))
