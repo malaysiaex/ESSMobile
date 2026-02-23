@@ -14,10 +14,10 @@ namespace ESSMobile.Models
         public double Latitude {get; set;}
         public double Longitude { get; set; }
 
-        // how far client can be from this location to be counted as "near" (km)
+        // how far client can be from this location to be counted as "near" (m)
         public double? BoundaryDistanceM { get; set; }
 
-        // current distance from client to location (km), calculate on userLocation retrieval
+        // current distance from client to location (m), calculate on userLocation retrieval
         public double DistanceM { get; set; }
         // optional, default to empty
         public string Address { get; set; }

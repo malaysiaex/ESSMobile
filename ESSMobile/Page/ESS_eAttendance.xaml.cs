@@ -419,13 +419,11 @@ public partial class ESS_eAttendance : ContentPage
                 if (timeBals.TotalMilliseconds > 0) {
                     lblCountDown.Text = $"{timeBals.Minutes} minutes {timeBals.Seconds} seconds";
                     clockedRecently = true;
-                    btnSubmit.IsVisible = false;
                 }
             }
             // if no clocking within last 5 minutes, make submit button visible
             if(!clockedRecently){
                 lblCountDown.Text = "0 minutes 0 seconds";
-                btnSubmit.IsVisible = true;
             }
             RefreshCompanyUI();
         });
@@ -652,6 +650,11 @@ public partial class ESS_eAttendance : ContentPage
             btnSubmit.IsEnabled = false;
             return;
         }
+        else
+        {
+            lblMessage.BackgroundColor = Colors.Green;
+            lblMessage.Text = "GPS Location Service Running.";
+        }
 
         // ----- nearWorkplace/withinWorkplaceTimeWindow calculation + notification for not near workplace ---------
 
@@ -682,13 +685,13 @@ public partial class ESS_eAttendance : ContentPage
                 if (selectedCompany.BoundaryDistanceM.HasValue)
                 {
                     SetRowVisible(true, lblCompanyDistance, lblCompanyDistanceValue);
-                    lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} km away";
+                    lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} m away";
                 }
                 else
                 {
                     SetRowVisible(false, lblCompanyDistance, lblCompanyDistanceValue);
                 }
-                lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} km away";
+                lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} m away";
                 // display address if available
                 if (!string.IsNullOrWhiteSpace(selectedCompany.Address))
                 {
@@ -728,48 +731,57 @@ public partial class ESS_eAttendance : ContentPage
                     );
                 // both daterange and dayofweekwindow must be satisfied
                 withinWorkplaceTimeWindow = withinWeeklyWindow && withinDateRange;
-                // handle notification by finding time overlaps between the window and dateranges
+                // ---------------- button text feedback if not allowed -------------------
+                // find time overlaps between the window and dateranges
                 if (!withinWorkplaceTimeWindow)
                 {
-                    lblMessage.BackgroundColor = Colors.Red;
                     var matchedDateRanges = selectedCompany.AssignedDateRanges
                         .Where(r => companyLocalTime.Date >= r.StartDate.Date &&
                                     companyLocalTime.Date <= r.EndDate.Date)
                         .ToList();
-                    var overlaps =
-                    from day in matchedDays
-                    from range in matchedDateRanges
-                    let overlapStart = day.StartTime > range.StartTime ? day.StartTime : range.StartTime
-                    let overlapEnd = day.EndTime < range.EndTime ? day.EndTime : range.EndTime
-                    where overlapStart <= overlapEnd
-                    select new { overlapStart, overlapEnd };
-                    if (overlaps.Any())
+                    var rawOverlaps =
+                        from day in matchedDays
+                        from range in matchedDateRanges
+                        let overlapStart = day.StartTime > range.StartTime ? day.StartTime : range.StartTime
+                        let overlapEnd = day.EndTime < range.EndTime ? day.EndTime : range.EndTime
+                        where overlapStart <= overlapEnd
+                        select (start: overlapStart, end: overlapEnd);
+                    var mergedOverlaps = MergeOverlaps(rawOverlaps);
+                    if (mergedOverlaps.Any())
                     {
-                        // User not currently within window, but there is a valid time later today
-                        var nextWindow = overlaps.First();
-                        lblMessage.BackgroundColor = Colors.Red;
-                        lblMessage.Text = $"You can check in today between {nextWindow.overlapStart} and {nextWindow.overlapEnd}.";
+                        // order overlaps by start time
+                        var orderedOverlaps = mergedOverlaps.OrderBy(o => o.start).ToList();
+                        // Display the next available window
+                        var currentTime = companyLocalTime.TimeOfDay;
+                        var windowToDisplay = orderedOverlaps.FirstOrDefault(o => o.start > currentTime);
+                        if (windowToDisplay != default)
+                        {
+                            btnSubmit.Text = $"Next available check-in/out window: {windowToDisplay.start} to {windowToDisplay.end}.";
+                        }
+                        // if no available window later today, display the last window
+                        else
+                        {
+                            windowToDisplay = orderedOverlaps.LastOrDefault();   
+                            btnSubmit.Text = $"Last available check-in/out window today: {windowToDisplay.start} to {windowToDisplay.end}.";
+                        }
                     }
                     else if (!matchedDays.Any())
                     {
-                        lblMessage.BackgroundColor = Colors.Red;
-                        lblMessage.Text = "You are not allowed to check in on this day of the week.";
+                        btnSubmit.Text = "You are not allowed to check in on this day of the week.";
                     }
                     else
                     {
-                        lblMessage.BackgroundColor = Colors.Red;
                         lblMessage.Text = "You are not allowed to check in at this time.";
                     }
                 }
                 else if (!nearWorkplace)
                 {
-                    lblMessage.BackgroundColor = Colors.Red;
-                    lblMessage.Text = $"Please move {(selectedCompany.DistanceM - selectedCompany.BoundaryDistanceM):F2} km closer to the selected company location";
+                    btnSubmit.Text = $"Please move {(selectedCompany.DistanceM - selectedCompany.BoundaryDistanceM):F2}m closer to the selected company location";
                 }
             }
         }
 
-        // --------- final notifications + button permissions ----------------
+        // --------- clock notifications + button permissions ----------------
         if (nearWorkplace && withinWorkplaceTimeWindow && clockedRecently)
         {
             lblMessage.BackgroundColor = Colors.Red;
@@ -782,13 +794,48 @@ public partial class ESS_eAttendance : ContentPage
             lblMessage.Text = "GPS Location Service Running. Clock in or out below.";
             btnSubmit.BackgroundColor = Colors.Green;
             btnSubmit.IsEnabled = true;
+            btnSubmit.Text = "Clock-In / Clock-Out";
         }
-        // Disable if not allowed to clock
+        // button color + disable
         else
         {
             btnSubmit.BackgroundColor = Colors.LightGray;
             btnSubmit.IsEnabled = false;
         }
+    }
+
+    // Merge overlapping timespans into one
+    List<(TimeSpan start, TimeSpan end)> MergeOverlaps(IEnumerable<(TimeSpan start, TimeSpan end)> periods)
+    {
+        var sorted = periods
+            .OrderBy(p => p.start)
+            .ThenByDescending(p => p.end) // ensures longer periods first if same start
+            .ToList();
+
+        var merged = new List<(TimeSpan start, TimeSpan end)>();
+
+        foreach (var period in sorted)
+        {
+            if (!merged.Any())
+            {
+                merged.Add(period);
+            }
+            else
+            {
+                var last = merged.Last();
+                if (period.start <= last.end) // overlap
+                {
+                    // merge
+                    merged[merged.Count - 1] = (last.start, period.end > last.end ? period.end : last.end);
+                }
+                else
+                {
+                    merged.Add(period);
+                }
+            }
+        }
+
+        return merged;
     }
     /// <summary>
     /// Re-check distances when new item selected in dropdown
@@ -824,15 +871,6 @@ public partial class ESS_eAttendance : ContentPage
         companyLocations = companyLocations
             .OrderBy(c => c.DistanceM)
             .ToList();
-        // sort by distances while keeping selected companyLoc at top of list
-        //var otherCompanyLocations = companyLocations
-        //    .Where(c => c != selectedCompanyLocation)
-        //    .OrderBy(c => c.DistanceKM)
-        //    .ToList();
-        //companyLocations = new List<CompanyLocation>();
-        //if (selectedCompanyLocation != null)
-        //    companyLocations.Add(selectedCompanyLocation);
-        //companyLocations.AddRange(otherCompanyLocations); 
     }
     //[Obsolete]
     private async void btnSubmit_Clicked(object sender, EventArgs e)
