@@ -679,16 +679,16 @@ public partial class ESS_eAttendance : ContentPage
             else
             {
                 // display distance if boundary exists
-                if (selectedCompany.BoundaryDistanceKM.HasValue)
+                if (selectedCompany.BoundaryDistanceM.HasValue)
                 {
                     SetRowVisible(true, lblCompanyDistance, lblCompanyDistanceValue);
-                    lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceKM:F2} km away";
+                    lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} km away";
                 }
                 else
                 {
                     SetRowVisible(false, lblCompanyDistance, lblCompanyDistanceValue);
                 }
-                lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceKM:F2} km away";
+                lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} km away";
                 // display address if available
                 if (!string.IsNullOrWhiteSpace(selectedCompany.Address))
                 {
@@ -708,30 +708,63 @@ public partial class ESS_eAttendance : ContentPage
                     DateTimeKind.Utc
                 );
                 DateTime companyLocalTime = selectedCompany.GetCompanyLocalTime(serverUtc);
-                List<CheckInWindow> matchedDays = selectedCompany.CheckInWindows
+                // day of week check
+                List<DayOfWeekWindow> matchedDays = selectedCompany.CheckInWindows
                     .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek).ToList();
-                List<CheckInWindow> matchedTimes = matchedDays
-                    .Where(w =>
+                bool withinWeeklyWindow = selectedCompany.CheckInWindows
+                    .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek)
+                    .Any(w =>
                         companyLocalTime.TimeOfDay >= w.StartTime &&
                         companyLocalTime.TimeOfDay <= w.EndTime
-                    ).ToList();
-                withinWorkplaceTimeWindow = matchedTimes.Any();
-                // handle notification
+                    );  
+
+                // date range check 
+                bool withinDateRange = selectedCompany.AssignedDateRanges
+                    .Any(r =>
+                        companyLocalTime.Date >= r.StartDate.Date &&
+                        companyLocalTime.Date <= r.EndDate.Date &&
+                        companyLocalTime.TimeOfDay >= r.StartTime &&
+                        companyLocalTime.TimeOfDay <= r.EndTime
+                    );
+                // both daterange and dayofweekwindow must be satisfied
+                withinWorkplaceTimeWindow = withinWeeklyWindow && withinDateRange;
+                // handle notification by finding time overlaps between the window and dateranges
                 if (!withinWorkplaceTimeWindow)
                 {
                     lblMessage.BackgroundColor = Colors.Red;
-                    if (matchedDays.Any()) {
-                        lblMessage.Text = $"You are only allowed to check in between {matchedDays[0].StartTime} and {matchedDays[0].EndTime} today.";
+                    var matchedDateRanges = selectedCompany.AssignedDateRanges
+                        .Where(r => companyLocalTime.Date >= r.StartDate.Date &&
+                                    companyLocalTime.Date <= r.EndDate.Date)
+                        .ToList();
+                    var overlaps =
+                    from day in matchedDays
+                    from range in matchedDateRanges
+                    let overlapStart = day.StartTime > range.StartTime ? day.StartTime : range.StartTime
+                    let overlapEnd = day.EndTime < range.EndTime ? day.EndTime : range.EndTime
+                    where overlapStart <= overlapEnd
+                    select new { overlapStart, overlapEnd };
+                    if (overlaps.Any())
+                    {
+                        // User not currently within window, but there is a valid time later today
+                        var nextWindow = overlaps.First();
+                        lblMessage.BackgroundColor = Colors.Red;
+                        lblMessage.Text = $"You can check in today between {nextWindow.overlapStart} and {nextWindow.overlapEnd}.";
+                    }
+                    else if (!matchedDays.Any())
+                    {
+                        lblMessage.BackgroundColor = Colors.Red;
+                        lblMessage.Text = "You are not allowed to check in on this day of the week.";
                     }
                     else
                     {
-                        lblMessage.Text = "You are not allowed to check in on this day.";
+                        lblMessage.BackgroundColor = Colors.Red;
+                        lblMessage.Text = "You are not allowed to check in at this time.";
                     }
                 }
                 else if (!nearWorkplace)
                 {
                     lblMessage.BackgroundColor = Colors.Red;
-                    lblMessage.Text = $"Please move {(selectedCompany.DistanceKM - selectedCompany.BoundaryDistanceKM):F2} km closer to the selected company location";
+                    lblMessage.Text = $"Please move {(selectedCompany.DistanceM - selectedCompany.BoundaryDistanceM):F2} km closer to the selected company location";
                 }
             }
         }
@@ -780,16 +813,16 @@ public partial class ESS_eAttendance : ContentPage
             var companyLoc = new Location(companyLocObj.Latitude, companyLocObj.Longitude);
             if (companyLoc == null)
             {
-                companyLocObj.DistanceKM = double.MaxValue;
+                companyLocObj.DistanceM = double.MaxValue;
                 continue;
             }
-            companyLocObj.DistanceKM = (Location.CalculateDistance(
+            companyLocObj.DistanceM = (Location.CalculateDistance(
                         _userLocation,
                         companyLoc,
-                        DistanceUnits.Kilometers));
+                        DistanceUnits.Kilometers)*1000);
         }
         companyLocations = companyLocations
-            .OrderBy(c => c.DistanceKM)
+            .OrderBy(c => c.DistanceM)
             .ToList();
         // sort by distances while keeping selected companyLoc at top of list
         //var otherCompanyLocations = companyLocations

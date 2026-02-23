@@ -31,7 +31,7 @@ public class ApiInitializer
         ESSMobileApi = apiUrls["ESSMobile_API"];
         ESSMobileApi2 = apiUrls["ESSMobile_API2"];
         // temp hard code for local testing
-        //ESSMoibleApi2 = "https://localhost:7220";
+        ESSMobileApi2 = "https://localhost:7220";
         ESSMobileWeb = apiUrls["ESSMobile_WebPage"];
         ESSMobile_DisableTakePhoto = apiUrls["ESSMobile_DisableTakePhoto"];
         // Initialize ApiFunctions after URLs are resolved

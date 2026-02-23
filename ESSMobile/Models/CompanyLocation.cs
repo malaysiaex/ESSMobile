@@ -15,15 +15,16 @@ namespace ESSMobile.Models
         public double Longitude { get; set; }
 
         // how far client can be from this location to be counted as "near" (km)
-        public double? BoundaryDistanceKM { get; set; }
+        public double? BoundaryDistanceM { get; set; }
 
         // current distance from client to location (km), calculate on userLocation retrieval
-        public double DistanceKM { get; set; }
+        public double DistanceM { get; set; }
         // optional, default to empty
         public string Address { get; set; }
 
         // the time periods associated with a company location
-        public List<CheckInWindow> CheckInWindows { get; set; }
+        public List<DayOfWeekWindow> CheckInWindows { get; set; }  = new();
+        public List<DateRange> AssignedDateRanges { get; set; } = new();
         public string TimeZoneId { get; set; }
 
         // cached runtime object 
@@ -35,16 +36,15 @@ namespace ESSMobile.Models
             Name = name;
             Latitude = latitude;
             Longitude = longitude;
-            BoundaryDistanceKM = boundaryDistance;
+            BoundaryDistanceM = boundaryDistance;
             Address = address;
-            CheckInWindows = new List<CheckInWindow>();
             TimeZoneId = GetTimeZoneIdFromCoordinates(latitude, longitude);
         }
         public bool IsNearWorkplace()
         {
-            if (BoundaryDistanceKM.HasValue)
+            if (BoundaryDistanceM.HasValue)
             {
-                return DistanceKM <= BoundaryDistanceKM;
+                return DistanceM <= BoundaryDistanceM;
             }
             return true;
         }

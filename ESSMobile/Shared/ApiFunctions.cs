@@ -8,12 +8,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ESSMobile.Shared
 {
+    public class UtcResponse
+    {
+        public DateTime UTC { get; set; }
+    }
     public static class ApiFunctions
     {
         private static HttpClient _ESSMobileApi_Client;
@@ -332,7 +337,7 @@ namespace ESSMobile.Shared
             try
             {
                 // retrieve company locations depending on companyIdentifier
-                string url = $"/api/Employee/GetCompanyLocationsWithWindows?identifierId={Uri.EscapeDataString(companyIdentifier)}&userId={Uri.EscapeDataString(username)}";
+                string url = $"/api/Employee/GetCompanyLocationsWithRestrictions?identifierId={Uri.EscapeDataString(companyIdentifier)}&userId={Uri.EscapeDataString(username)}";
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var responseJson = await response.Content.ReadAsStringAsync();
@@ -344,32 +349,22 @@ namespace ESSMobile.Shared
                 throw;
             }
         }
+           
         public static async Task<DateTime> APIGetServerUtcTime()
         {
-            // temp hard code to local api
-            //BaseUrl = "https://localhost:5002";
-
             var client = _ESSMobileApi2_Client;
-
-
             try
             {
                 string url = "/api/Employee/GetUtcTime";
-                var response = await client.GetAsync(url);
+                var response = await client.GetAsync(url);  
                 response.EnsureSuccessStatusCode();
 
-                var responseJson = await response.Content.ReadAsStringAsync();
-                var utcObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
-                if (utcObj == null || !utcObj.ContainsKey("utc"))
+                var utcObj = await response.Content.ReadFromJsonAsync<UtcResponse>();
+
+                if (utcObj == null)
                     throw new Exception("Invalid response from server.");
 
-                // Parse the ISO 8601 UTC string into DateTime
-                var serverUtcTime = DateTime.Parse(utcObj["utc"], null, System.Globalization.DateTimeStyles.AdjustToUniversal);
-
-                // Ensure DateTimeKind is UTC
-                serverUtcTime = DateTime.SpecifyKind(serverUtcTime, DateTimeKind.Utc);
-
-                return serverUtcTime;
+                return utcObj.UTC;
             }
             catch (Exception ex)
             {
