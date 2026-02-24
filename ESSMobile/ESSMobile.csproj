@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>		<!--
-		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-		-->
+	<PropertyGroup>		
+		
 		<TargetFrameworks>
 			net9.0-android35.0;
 			net9.0-windows10.0.19041.0
 		</TargetFrameworks>
-			
+
 		<!--
 		<TargetFrameworks>net8.0-ios;net8.0-maccatalyst;net9.0-android35.0</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
@@ -48,7 +47,9 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
-  
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<RunAOTCompilation>false</RunAOTCompilation>
+	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
 	  <MtouchLink>SdkOnly</MtouchLink>
 	  <ApplicationDisplayVersion>1.10.17</ApplicationDisplayVersion>

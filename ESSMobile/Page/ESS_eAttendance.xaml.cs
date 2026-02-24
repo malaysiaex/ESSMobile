@@ -767,11 +767,11 @@ public partial class ESS_eAttendance : ContentPage
                     }
                     else if (!matchedDays.Any())
                     {
-                        btnSubmit.Text = "You are not allowed to check in on this day of the week.";
+                        btnSubmit.Text = "Check-in/out unavailable on this day of the week.";
                     }
                     else
                     {
-                        lblMessage.Text = "You are not allowed to check in at this time.";
+                        lblMessage.Text = "Check-in/out unavailable at this time.";
                     }
                 }
                 else if (!nearWorkplace)
