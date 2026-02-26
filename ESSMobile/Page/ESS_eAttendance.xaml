@@ -170,15 +170,19 @@
 
                         <!-- Button on top -->
                         <Button x:Name="btnSubmit"
-                                AbsoluteLayout.LayoutBounds="0,0,1,1"
-                                AbsoluteLayout.LayoutFlags="All"
-                                Text="Clock-In / Clock-Out"
-                                FontAttributes="Bold"
-                                TextColor="White"
-                                BackgroundColor="LightGray"
-                                IsVisible="true"
-                                IsEnabled="false"
-                                Clicked="btnSubmit_Clicked" />
+                            AbsoluteLayout.LayoutBounds="0,0,1,1"
+                            AbsoluteLayout.LayoutFlags="All"
+                            Text="Clock-In / Clock-Out"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="LightGray"
+                            IsVisible="true"
+                            IsEnabled="false"
+                            Clicked="btnSubmit_Clicked"
+                            LineBreakMode="WordWrap"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Start"
+                            MinimumHeightRequest="60" />
                     </AbsoluteLayout>
 
                     <!-- Last Clocking Record -->

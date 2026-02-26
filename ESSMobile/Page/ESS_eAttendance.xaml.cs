@@ -771,7 +771,7 @@ public partial class ESS_eAttendance : ContentPage
                     }
                     else
                     {
-                        lblMessage.Text = "Check-in/out unavailable at this time.";
+                        btnSubmit.Text = "Check-in/out unavailable at this time.";
                     }
                 }
                 else if (!nearWorkplace)
@@ -784,8 +784,7 @@ public partial class ESS_eAttendance : ContentPage
         // --------- clock notifications + button permissions ----------------
         if (nearWorkplace && withinWorkplaceTimeWindow && clockedRecently)
         {
-            lblMessage.BackgroundColor = Colors.Red;
-            lblMessage.Text = "GPS Location Service Running. Please wait to clock again.";
+            lblMessage.Text = "GPS Location Service Running. Please wait to clock.";
         }
         // Allowed to clock, enable
         if (nearWorkplace && !clockedRecently && withinWorkplaceTimeWindow )

@@ -144,8 +144,9 @@ public partial class WebContent : ContentPage
         string LoginMethod = await SecureStorage.GetAsync("LoginMethod") ?? "";
 
         BaseUrl = ApiInitializer.ESSMobileWeb;
-        // TEMP hard code the mobile web page locally later
-
+        // TEMP hard code the baseurl locally
+        BaseUrl = "https://localhost:44306";
+        BaseUrl = "https://unprocessional-sasha-acknowledgingly.ngrok-free.dev ";
         if (LoginMethod != "Bio")
         {
             string getUsername = await SecureStorage.GetAsync("login_username") ?? "";
