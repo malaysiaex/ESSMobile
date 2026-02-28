@@ -61,7 +61,6 @@ public partial class ESS_eAttendance : ContentPage
     Location? _userLocation = null;
     string _userAddress = "";
     string _picBase64 = "";
-    CompanyLocation selectedCompanyLocation; 
     List<CompanyLocation>? companyLocations = new List<CompanyLocation>();
     private bool _geoBusy;
 
@@ -136,6 +135,21 @@ public partial class ESS_eAttendance : ContentPage
         }
         finally
         {
+            // sort the list by available locations then by distance
+            CalculateCompanyLocsDistanceFromUser();
+            CalculateCompanyLocsWithinWindowFlags();
+            companyLocations = companyLocations
+            .OrderByDescending(c =>
+                c.withinWeeklyWindow
+                && c.withinDateRange
+                && c.IsNearWorkplace())
+            .ThenBy(c => c.GetDistanceFromBoundary())
+            .ToList();
+            CompanyPicker.ItemsSource = companyLocations;
+            CompanyPicker.SelectedIndexChanged += CompanyPicker_SelectedIndexChanged;
+            CompanyPicker.ItemDisplayBinding = new Binding("Name");
+            CompanyPicker.SelectedIndex = 0;
+
             await Task.Delay(500);
             areaLoading.IsVisible = false;
         }
@@ -231,14 +245,11 @@ public partial class ESS_eAttendance : ContentPage
             // disable top box if null meaning db does not exist
             if (companyLocations == null)
             {
-                SetRowVisible(false, lblSelectLocation, CompanyPicker);
+                SetElementsVisible(false, lblSelectLocation, CompanyPicker);
             }
             else
             {
-                SetRowVisible(true, lblSelectLocation, CompanyPicker);
-                CompanyPicker.ItemsSource = companyLocations;
-                CompanyPicker.SelectedIndexChanged += CompanyPicker_SelectedIndexChanged;
-                CompanyPicker.ItemDisplayBinding = new Binding("Name");
+                SetElementsVisible(true, lblSelectLocation, CompanyPicker);
             }
         }
         catch(Exception ex)
@@ -669,7 +680,9 @@ public partial class ESS_eAttendance : ContentPage
         else
         {
             CompanyLocation? selectedCompany = CompanyPicker.SelectedItem as CompanyLocation;
-            SortCompanyLocations();
+            // calculate distances and whether location is within time ranges
+            CalculateCompanyLocsDistanceFromUser();
+            CalculateCompanyLocsWithinWindowFlags();
             // if have not selected a location yet
             if (selectedCompany == null)
             {
@@ -682,63 +695,36 @@ public partial class ESS_eAttendance : ContentPage
             else
             {
                 // display distance if boundary exists
-                if (selectedCompany.BoundaryDistanceM.HasValue)
-                {
-                    SetRowVisible(true, lblCompanyDistance, lblCompanyDistanceValue);
-                    lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} m away";
-                }
-                else
-                {
-                    SetRowVisible(false, lblCompanyDistance, lblCompanyDistanceValue);
-                }
+                bool hasBoundary = selectedCompany.BoundaryDistanceM.HasValue;
+                SetElementsVisible(hasBoundary, lblCompanyDistance, lblCompanyDistanceValue);
                 lblCompanyDistanceValue.Text = $"{selectedCompany.DistanceM:F2} m away";
+
                 // display address if available
-                if (!string.IsNullOrWhiteSpace(selectedCompany.Address))
-                {
-                    SetRowVisible(true, lblCompanyAddress, lblCompanyAddressValue);
-                    lblCompanyAddressValue.Text = selectedCompany.Address;
-                }
-                else
-                {
-                    SetRowVisible(false, lblCompanyAddress, lblCompanyAddressValue);
-                }
+                bool hasAddress = !string.IsNullOrWhiteSpace(selectedCompany.Address);
+                SetElementsVisible(hasAddress, lblCompanyAddress, lblCompanyAddressValue);
+                lblCompanyAddressValue.Text = selectedCompany.Address;
 
                 // set near workplace
                 nearWorkplace = selectedCompany.IsNearWorkplace(); // true if boundary has no value
-                // set withinworkplacetimewindow by converting _utctime to time at companyLocation
-                DateTime serverUtc = DateTime.SpecifyKind(
-                    _utcTime.AddSeconds(_timerNowTicks),
-                    DateTimeKind.Utc
-                );
-                DateTime companyLocalTime = selectedCompany.GetCompanyLocalTime(serverUtc);
-                // day of week check
-                List<DayOfWeekWindow> matchedDays = selectedCompany.CheckInWindows
-                    .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek).ToList();
-                bool withinWeeklyWindow = selectedCompany.CheckInWindows
-                    .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek)
-                    .Any(w =>
-                        companyLocalTime.TimeOfDay >= w.StartTime &&
-                        companyLocalTime.TimeOfDay <= w.EndTime
-                    );  
-
-                // date range check 
-                bool withinDateRange = selectedCompany.AssignedDateRanges
-                    .Any(r =>
-                        companyLocalTime.Date >= r.StartDate.Date &&
-                        companyLocalTime.Date <= r.EndDate.Date &&
-                        companyLocalTime.TimeOfDay >= r.StartTime &&
-                        companyLocalTime.TimeOfDay <= r.EndTime
-                    );
                 // both daterange and dayofweekwindow must be satisfied
-                withinWorkplaceTimeWindow = withinWeeklyWindow && withinDateRange;
+                withinWorkplaceTimeWindow = selectedCompany.withinWeeklyWindow && selectedCompany.withinDateRange;
                 // ---------------- button text feedback if not allowed -------------------
-                // find time overlaps between the window and dateranges
+                // attempt to show the next available time range or last available time range 
+                // by finding time overlaps between the window and dateranges
                 if (!withinWorkplaceTimeWindow)
                 {
+                    DateTime serverUtc = DateTime.SpecifyKind(
+                        _utcTime.AddSeconds(_timerNowTicks),
+                        DateTimeKind.Utc
+                    );
+                    DateTime companyLocalTime = selectedCompany.GetCompanyLocalTime(serverUtc);
                     var matchedDateRanges = selectedCompany.AssignedDateRanges
                         .Where(r => companyLocalTime.Date >= r.StartDate.Date &&
                                     companyLocalTime.Date <= r.EndDate.Date)
                         .ToList();
+                    List<DayOfWeekWindow> matchedDays = selectedCompany.CheckInWindows
+                    .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek).ToList();
+
                     var rawOverlaps =
                         from day in matchedDays
                         from range in matchedDateRanges
@@ -752,8 +738,7 @@ public partial class ESS_eAttendance : ContentPage
                         // order overlaps by start time
                         var orderedOverlaps = mergedOverlaps.OrderBy(o => o.start).ToList();
                         // Display the next available window
-                        var currentTime = companyLocalTime.TimeOfDay;
-                        var windowToDisplay = orderedOverlaps.FirstOrDefault(o => o.start > currentTime);
+                        var windowToDisplay = orderedOverlaps.FirstOrDefault(o => o.start > companyLocalTime.TimeOfDay);
                         if (windowToDisplay != default)
                         {
                             btnSubmit.Text = $"Next available check-in/out window: {windowToDisplay.start} to {windowToDisplay.end}.";
@@ -846,12 +831,12 @@ public partial class ESS_eAttendance : ContentPage
         RefreshCompanyUI();
     }
     /// <summary>
-    /// Recalculates distance from userLocation to each company location and
-    /// sorts companyLocations by this distance.
+    /// Calculates distance from userLocation to each loaded company location.
+    /// Stores in CompanyLocation.DistanceM
     /// </summary>
     /// <returns></returns>
     /// 
-    private void SortCompanyLocations()
+    private void CalculateCompanyLocsDistanceFromUser()
     {
         // set distances to userLoc
         foreach (var companyLocObj in companyLocations)
@@ -859,7 +844,7 @@ public partial class ESS_eAttendance : ContentPage
             var companyLoc = new Location(companyLocObj.Latitude, companyLocObj.Longitude);
             if (companyLoc == null)
             {
-                companyLocObj.DistanceM = double.MaxValue;
+                companyLocObj.DistanceM = 0;
                 continue;
             }
             companyLocObj.DistanceM = (Location.CalculateDistance(
@@ -867,9 +852,23 @@ public partial class ESS_eAttendance : ContentPage
                         companyLoc,
                         DistanceUnits.Kilometers)*1000);
         }
-        companyLocations = companyLocations
-            .OrderBy(c => c.DistanceM)
-            .ToList();
+    }
+    /// <summary>
+    /// Calculates withinWeeklyWindow and withinDateRange for loaded locations.
+    /// </summary>
+    private void CalculateCompanyLocsWithinWindowFlags()
+    {
+        foreach (var companyLoc in companyLocations)
+        {
+            // set withinworkplacetimewindow by usign converted _utctime to time at companyLocation
+            DateTime serverUtc = DateTime.SpecifyKind(
+                _utcTime.AddSeconds(_timerNowTicks),
+                DateTimeKind.Utc
+            );
+            DateTime companyLocalTime = companyLoc.GetCompanyLocalTime(serverUtc);
+
+            companyLoc.CalculateWithinWindows(companyLocalTime);
+        }
     }
     //[Obsolete]
     private async void btnSubmit_Clicked(object sender, EventArgs e)
@@ -1188,7 +1187,12 @@ public partial class ESS_eAttendance : ContentPage
             lblPicBase64.Text = "";
         }
     }
-    private void SetRowVisible(bool visible, params VisualElement[] elements)
+    /// <summary>
+    /// Sets visilibity = visible for all elements passed
+    /// </summary>
+    /// <param name="visible"></param>
+    /// <param name="elements"></param>
+    private void SetElementsVisible(bool visible, params VisualElement[] elements)
     {
         foreach (var el in elements)
             el.IsVisible = visible;

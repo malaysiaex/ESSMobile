@@ -1,9 +1,4 @@
 ﻿using GeoTimeZone;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ESSMobile.Models
 {
@@ -25,10 +20,17 @@ namespace ESSMobile.Models
         // the time periods associated with a company location
         public List<DayOfWeekWindow> CheckInWindows { get; set; }  = new();
         public List<DateRange> AssignedDateRanges { get; set; } = new();
-        public string TimeZoneId { get; set; }
 
+        // bools for within window
+        public bool withinWeeklyWindow { get; set; }
+        public bool withinDateRange { get; set; }
+
+
+        // timezones 
+        public string TimeZoneId { get; set; }
         // cached runtime object 
         private TimeZoneInfo? _timeZoneInfo;
+
 
         public CompanyLocation(int id, string name, double latitude, double longitude, double boundaryDistance, string address = "")
         {
@@ -65,6 +67,36 @@ namespace ESSMobile.Models
         {
             serverUtc = DateTime.SpecifyKind(serverUtc, DateTimeKind.Utc);
             return TimeZoneInfo.ConvertTimeFromUtc(serverUtc, GetTimeZoneInfo());
+        }
+        public double GetDistanceFromBoundary()
+        {
+            if (BoundaryDistanceM.HasValue) {
+                return Math.Max(0, this.DistanceM - this.BoundaryDistanceM.Value);       
+            }
+            return 0;
+        }
+        /// <summary>
+        /// Calculates and stores withinWeeklyWindow and withinDateRange.
+        /// </summary>
+        /// <param name="companyLocalTime"></param>
+        public void CalculateWithinWindows(DateTime companyLocalTime)
+        {
+            // day of week check
+            this.withinWeeklyWindow = this.CheckInWindows
+                .Where(w => w.DayOfWeek == (byte)companyLocalTime.DayOfWeek)
+                .Any(w =>
+                    companyLocalTime.TimeOfDay >= w.StartTime &&
+                    companyLocalTime.TimeOfDay <= w.EndTime
+                );
+            // date range check 
+            this.withinDateRange = this.AssignedDateRanges
+                .Any(r =>
+                    companyLocalTime.Date >= r.StartDate.Date &&
+                    companyLocalTime.Date <= r.EndDate.Date &&
+                    companyLocalTime.TimeOfDay >= r.StartTime &&
+                    companyLocalTime.TimeOfDay <= r.EndTime
+                );
+
         }
     }
 }
