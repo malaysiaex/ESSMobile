@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<TargetFrameworks>
 			net8.0-android;
 			net8.0-windows10.0.19041;
@@ -49,6 +49,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
+	
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<RunAOTCompilation>false</RunAOTCompilation>
 	</PropertyGroup>
@@ -58,11 +59,20 @@
 	  <ApplicationVersion>17</ApplicationVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
-	  <Entitlements>Platforms\iOS\Entitlements.plist</Entitlements>
-	  <ProvisioningType>manual</ProvisioningType>
-	  <CodesignKey>Apple Distribution: WAI HOONG LOH (X7B2A22XZ6)</CodesignKey>
-	  <CodesignProvision>Exacom ESS Mobile (Distribution)</CodesignProvision>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios' and '$(Configuration)'=='Debug'">
+		<Entitlements>Platforms/iOS/Entitlements.plist</Entitlements>
+		<ProvisioningType>manual</ProvisioningType>
+		<CodesignKey>-</CodesignKey>
+		<CodesignProvision></CodesignProvision>
+		<MtouchLink>SdkOnly</MtouchLink>
+		<_RequireCodeSigning>false</_RequireCodeSigning>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios' and '$(Configuration)'=='Release'">
+		<Entitlements>Platforms/iOS/Entitlements.plist</Entitlements>
+		<ProvisioningType>manual</ProvisioningType>
+		<CodesignKey>Apple Distribution: WAI HOONG LOH (X7B2A22XZ6)</CodesignKey>
+		<CodesignProvision>Exacom ESS Mobile (Distribution)</CodesignProvision>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android35.0|AnyCPU'">

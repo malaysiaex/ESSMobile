@@ -23,10 +23,12 @@ public static class MauiProgram
         builder.Services.AddHttpClient("ESSMobile");
         builder.Services.AddHttpClient("ESSMobile2");
         builder.Services.AddHttpClient("ESSMobileWeb");
-        var app = builder.Build();
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+        var app = builder.Build();
+
 
         //#if ANDROID
         //        CrossFingerprint.SetCurrentActivityResolver(() =>
