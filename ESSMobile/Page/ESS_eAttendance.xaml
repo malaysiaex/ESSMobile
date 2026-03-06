@@ -10,11 +10,10 @@
         <AbsoluteLayout>
 
             <!-- contents -->
-            <StackLayout x:Name="areaContent" 
-                     AbsoluteLayout.LayoutBounds="0,0,1,1"
-                     AbsoluteLayout.LayoutFlags="All">
-
-                <!-- notification message -->
+            <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+                <StackLayout x:Name="areaContent">
+                    <!-- notification message -->
                 <StackLayout>
                     <Label x:Name="lblMessage"
                            Text="Checking GPS Permission"
@@ -191,7 +190,8 @@
                            IsVisible="true" />
                 </StackLayout>
 
-            </StackLayout>
+                </StackLayout>
+            </ScrollView>
 
             <!-- loading -->
             <StackLayout x:Name="areaLoading" IsVisible="false"
