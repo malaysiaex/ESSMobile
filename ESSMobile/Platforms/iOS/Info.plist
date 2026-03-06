@@ -43,6 +43,8 @@
 	<string>This app use camera to take selfie photo when clock attendance.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app can upload photo from photo library.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app can save photos to your library.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>This app use biometric authentication to login.</string>
 	<key>CFBundleIdentifier</key>
