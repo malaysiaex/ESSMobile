@@ -29,11 +29,6 @@ public static class MauiProgram
 #endif
         var app = builder.Build();
 
-
-        //#if ANDROID
-        //        CrossFingerprint.SetCurrentActivityResolver(() =>
-        //            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity);
-        //#endif
         return app;
 
 
